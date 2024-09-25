@@ -1,0 +1,85 @@
+// Online C++ compiler to run C++ program online
+#include <iostream>
+#include <vector>
+#include <climits>
+
+using namespace std;
+
+// Structure to represent an edge in the graph
+struct Edge {
+    int src, dest;
+    int distance, time, cost;
+};
+
+// Function to print the results
+void printResult(int dist[], int time[], int cost[], int V) {
+    cout << "Vertex\tDistance\tTime\tCost\n";
+    for (int i = 0; i < V; i++) {
+        cout << i << "\t" << dist[i] << "\t\t" << time[i] << "\t" << cost[i] << "\n";
+    }
+}
+
+// Bellman-Ford algorithm to find shortest path, time, and cost
+void bellmanFord(vector<Edge> &edges, int V, int E, int src) {
+    // Initialize the distance, time, and cost arrays
+    vector<int> dist(V, INT_MAX);
+    vector<int> time(V, INT_MAX);
+    vector<int> cost(V, INT_MAX);
+
+    // Set the source vertex
+    dist[src] = 0;
+    time[src] = 0;
+    cost[src] = 0;
+
+    // Relax all edges |V| - 1 times
+    for (int i = 1; i <= V - 1; i++) {
+        for (int j = 0; j < E; j++) {
+            int u = edges[j].src;
+            int v = edges[j].dest;
+            int d = edges[j].distance;
+            int t = edges[j].time;
+            int c = edges[j].cost;
+
+            if (dist[u] != INT_MAX && dist[u] + d < dist[v]) {
+                dist[v] = dist[u] + d;
+                time[v] = time[u] + t;
+                cost[v] = cost[u] + c;
+            }
+        }
+    }
+
+    // Check for negative-weight cycles
+    for (int j = 0; j < E; j++) {
+        int u = edges[j].src;
+        int v = edges[j].dest;
+        int d = edges[j].distance;
+        if (dist[u] != INT_MAX && dist[u] + d < dist[v]) {
+            cout << "Graph contains a negative-weight cycle\n";
+            return;
+        }
+    }
+
+    // Print the results
+    printResult(dist.data(), time.data(), cost.data(), V);
+}
+
+int main() {
+    int V, E; // Number of vertices and edges
+    cout << "Enter the number of vertices and edges: ";
+    cin >> V >> E;
+
+    vector<Edge> edges(E);
+
+    cout << "Enter the source, destination, distance, time, and cost for each edge:\n";
+    for (int i = 0; i < E; i++) {
+        cin >> edges[i].src >> edges[i].dest >> edges[i].distance >> edges[i].time >> edges[i].cost;
+    }
+
+    int src;
+    cout << "Enter the source vertex: ";
+    cin >> src;
+
+    bellmanFord(edges, V, E, src);
+
+    return 0;
+}
